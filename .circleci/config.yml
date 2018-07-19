@@ -1,0 +1,117 @@
+defaults: &defaults
+  working_directory: ~/app
+  docker:
+    - image: circleci/node:8
+
+version: 2
+jobs:
+  checkout_code:
+    <<: *defaults
+    steps:
+      - checkout
+      - save_cache:
+          key: 'v1-app-{{ .Environment.CIRCLE_SHA1 }}'
+          paths: 
+            - ~/app
+      - save_cache:
+          key: 'v1-loan-calc-scripts'
+  dependencies:
+    <<: *defaults
+    steps:
+      - restore_cache:
+          key: 'v1-app-{{ .Environment.CIRCLE_SHA1 }}'
+      - restore_cache:
+          key: 'v1-module-{{ checksum "yarn.lock" }}'
+      - run: yarn install
+      - save_cache:
+          key: 'v1-module-{{ checksum "yarn.lock" }}'
+          paths:
+            - ~/app/node_modules
+            - ~/.cache/yarn
+  test:
+    <<: *defaults
+    steps:
+      - restore_cache:
+            key: 'v1-app-{{ .Environment.CIRCLE_SHA1 }}'
+      - restore_cache:
+            key: 'v1-module-{{ checksum "yarn.lock" }}'
+      - run: yarn test
+  build:
+    <<: *defaults
+    steps:
+      - restore_cache:
+          key: 'v1-app-{{ .Environment.CIRCLE_SHA1 }}'
+      - restore_cache:
+          key: 'v1-module-{{ checksum "yarn.lock" }}'
+      - run: yarn build
+      - persist_to_workspace:
+          root: ~/app
+          paths:
+            - package.json
+            - dist/
+  deploy:
+    <<: *defaults
+    steps:
+      - restore_cache:
+          key: 'v1-loan-calc-scripts'
+      - attach_workspace:
+          at: ~/app
+      - run: ./etc/deploy
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - checkout_code:
+          filters:
+            tags:
+              ignore: /v.*/
+      - dependencies:
+          requires:
+            - checkout_code
+      - test:
+          requires:
+            - dependencies
+      - build:
+          requires:
+            - test
+  build-and-deploy:
+    jobs:
+      - checkout_code:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v.*/
+      - dependencies:
+          requires:
+            - checkout_code
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v.*/
+      - test:
+          requires:
+            - dependencies
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v.*/
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v.*/
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v.*/
