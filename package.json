@@ -14,10 +14,10 @@
   "scripts": {
     "start": "npm-run-all -p watch-css start-js",
     "build": "npm-run-all build-css build-js",
+    "test": "react-scripts test",
     "start-js": "react-scripts start",
     "build-js": "react-scripts build",
     "build-css": "node-sass-chokidar src/ -o src/",
-    "build-css:ci": "node-sass-chokidar src/ -o src/",
     "watch-css": "yarn build-css && node-sass-chokidar src/ -o src/ --skip-initial --watch --recursive"
   },
   "devDependencies": {
