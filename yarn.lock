@@ -2922,9 +2922,9 @@ from@~0:
   version "0.1.7"
   resolved "https://cngholdings.jfrog.io/cngholdings/api/npm/npm-virtual/from/-/from-0.1.7.tgz#83c60afc58b9c56997007ed1a768b3ab303a44fe"
 
-frontend-shared@0.2.2:
-  version "0.2.2"
-  resolved "https://cngholdings.jfrog.io/cngholdings/api/npm/npm-virtual/frontend-shared/-/frontend-shared-0.2.2.tgz#b349bc5792a409cc420af230d9985fe096f16568"
+frontend-shared@0.3.0:
+  version "0.3.0"
+  resolved "https://cngholdings.jfrog.io/cngholdings/api/npm/npm-virtual/frontend-shared/-/frontend-shared-0.3.0.tgz#ffab2665cb881e19f3c4a7badb648a84025581fe"
   dependencies:
     "@babel/polyfill" "^7.0.0-beta.52"
 
